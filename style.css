@@ -1,0 +1,347 @@
+:root {
+    --font-family: sans-serif;
+    --body-bg-color: #f4f4f4;
+    --body-text-color: #333;
+    --panel-bg-color: #fff;
+    --panel-shadow-color: rgba(0,0,0,0.1);
+    --header-text-color: #333;
+    --subheader-text-color: #444;
+    --border-color-light: #eee;
+    --border-color-main: #ddd;
+    --border-color-dark: #ccc;
+    --button-bg-color: #007bff;
+    --button-text-color: white;
+    --button-hover-bg-color: #0056b3;
+    --button-disabled-bg-color: #ccc;
+    --input-bg-color: #fff; /* No usado directamente ahora, pero útil */
+    --input-text-color: #333; /* No usado directamente ahora, pero útil */
+    --input-border-color: #ccc;
+    --prediction-output-bg-color: #e9ecef;
+    --svg-bg-color: #f9f9f9;
+    --svg-border-color: #ddd;
+    --neuron-stroke-color: #333;
+    --connection-default-color: #555;
+    --connection-default-opacity: '0.7'; /* Mantener como string si se lee directo */
+    --connection-default-stroke-width: '1px'; /* Mantener como string si se lee directo */
+    --slider-track-color: #ccc;
+    --slider-thumb-color: white;
+    --slider-active-track-color: #007bff;
+    --text-muted-color: #555;
+
+    /* Colores para pesos (RGB, para poder añadir alfa después en JS) */
+    --positive-weight-rgb: '0, 150, 0';
+    --negative-weight-rgb: '200, 0, 0';
+
+    /* Colores para neuronas (usados en JS) */
+    --neuron-fill-input: #87CEEB;
+    --neuron-fill-hidden: #FFD700;
+    --neuron-fill-output: #90EE90;
+}
+
+body.dark-theme {
+    --body-bg-color: #121212;
+    --body-text-color: #e0e0e0;
+    --panel-bg-color: #1e1e1e; /* Un gris oscuro para paneles */
+    --panel-shadow-color: rgba(255,255,255,0.05); /* Sombra muy sutil y clara */
+    --header-text-color: #f5f5f5;
+    --subheader-text-color: #bdbdbd;
+    --border-color-light: #2a2a2a;
+    --border-color-main: #424242;
+    --border-color-dark: #555555;
+    --button-bg-color: #008cff; /* Azul más brillante */
+    --button-text-color: #ffffff;
+    --button-hover-bg-color: #0073cc;
+    --button-disabled-bg-color: #333;
+    --input-bg-color: #2c2c2c;
+    --input-text-color: #e0e0e0;
+    --input-border-color: #555555;
+    --prediction-output-bg-color: #2c2c2c;
+    --svg-bg-color: #282828;
+    --svg-border-color: #424242;
+    --neuron-stroke-color: #e0e0e0;
+    --connection-default-color: #aaaaaa;
+    --connection-default-opacity: '0.6'; /* Opacidad ligeramente diferente para tema oscuro */
+    --connection-default-stroke-width: '1px';
+    --slider-track-color: #555;
+    --slider-thumb-color: #e0e0e0;
+    --slider-active-track-color: #008cff;
+    --text-muted-color: #9e9e9e;
+
+    /* Colores para pesos en tema oscuro (RGB) */
+    --positive-weight-rgb: '100, 220, 100'; /* Verde más claro/brillante */
+    --negative-weight-rgb: '255, 100, 100'; /* Rojo más claro/brillante */
+
+    /* Colores para neuronas en tema oscuro (usados en JS) */
+    --neuron-fill-input: #509ABF; /* Azul más oscuro/menos saturado */
+    --neuron-fill-hidden: #D4AF37; /* Dorado más oscuro */
+    --neuron-fill-output: #6AAB6A; /* Verde más oscuro */
+}
+
+
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: var(--font-family);
+    background-color: var(--body-bg-color);
+    color: var(--body-text-color);
+    overflow-x: hidden; /* Evitar scroll horizontal en el body */
+}
+
+.app-container {
+    display: flex;
+    height: 100vh; /* Ocupar toda la altura de la ventana */
+}
+
+.control-panel {
+    width: 350px; /* Ancho fijo para el panel de control */
+    padding: 20px;
+    background-color: var(--panel-bg-color);
+    box-shadow: 2px 0 5px var(--panel-shadow-color);
+    overflow-y: auto; /* Scroll si el contenido es más largo */
+    height: 100vh; /* Ocupar toda la altura */
+    box-sizing: border-box;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px; /* Espacio antes de la primera sección de controles */
+}
+
+.control-panel h1 {
+    font-size: 1.7em;
+    color: var(--header-text-color);
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* Theme Switch Styles */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px; /* Ancho del switch */
+    height: 26px; /* Alto del switch */
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.theme-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--slider-track-color);
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 26px;
+}
+
+.theme-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--slider-thumb-color);
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.theme-switch input:checked + .slider {
+    background-color: var(--slider-active-track-color);
+}
+
+.theme-switch input:focus + .slider {
+    box-shadow: 0 0 1px var(--slider-active-track-color);
+}
+
+.theme-switch input:checked + .slider:before {
+    -webkit-transform: translateX(24px);
+    -ms-transform: translateX(24px);
+    transform: translateX(24px);
+}
+
+.control-panel h2 {
+    font-size: 1.3em;
+    color: var(--subheader-text-color);
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 5px;
+}
+
+
+.controls, .training-section, .prediction-section {
+    background-color: transparent; /* El fondo ya está en control-panel */
+    padding: 0; /* Padding ya está en control-panel o en secciones específicas */
+    /* margin-bottom: 20px; /* Quitar el margen inferior general de .prediction-section si estaba aquí */
+    border-radius: 0; /* Sin bordes redondeados individuales */
+    box-shadow: none; /* Sin sombras individuales */
+    width: 100%; /* Ocupar todo el ancho del control-panel */
+}
+
+/* Asegurarse que .prediction-section en .control-panel (si existiera por error) no tenga margen inferior excesivo */
+.control-panel .prediction-section {
+    margin-bottom: 0;
+}
+
+
+.slider-container {
+    margin-bottom: 20px; /* Aumentar un poco el margen inferior */
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Hacer que los hijos (label-value-container y input) se estiren */
+}
+
+.label-value-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px; /* Espacio entre la línea etiqueta/valor y el slider */
+}
+
+.slider-container label {
+    font-weight: bold;
+    color: var(--body-text-color);
+}
+
+.slider-container input[type="range"] {
+    width: 100%;
+    /* Estilos para personalizar la apariencia del range input son complejos y varían por navegador */
+    /* Se deja la apariencia por defecto por ahora, que se adaptará al tema del sistema/navegador */
+}
+
+.slider-container span {
+    text-align: right;
+    font-size: 0.95em;
+    color: var(--header-text-color);
+    font-weight: bold;
+}
+
+.network-panel {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px;
+    box-sizing: border-box;
+    height: 100vh;
+}
+
+.prediction-section {
+    background-color: var(--panel-bg-color);
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--panel-shadow-color);
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+.prediction-section h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    text-align: center;
+    color: var(--subheader-text-color);
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 10px;
+}
+
+.neural-network-container {
+    width: 100%;
+    flex-grow: 1;
+    background-color: var(--panel-bg-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--panel-shadow-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#neuralNetworkSvg {
+    display: block;
+    width: 98%;
+    height: 98%;
+    border: 1px solid var(--svg-border-color);
+    background-color: var(--svg-bg-color);
+}
+
+.data-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.data-entry > div {
+    width: 100%;
+}
+
+textarea, input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    margin-top: 5px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+}
+
+button {
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: var(--button-hover-bg-color);
+}
+
+button:disabled {
+    background-color: var(--button-disabled-bg-color);
+    cursor: not-allowed;
+}
+
+#predictionOutput {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: var(--prediction-output-bg-color);
+    border-radius: 4px;
+    min-height: 20px;
+    color: var(--body-text-color);
+}
+
+.neuron {
+    stroke: var(--neuron-stroke-color);
+    stroke-width: 1.5; /* Este podría ser una variable también si se desea */
+}
+
+.connection {
+    /* Los estilos principales (stroke, stroke-width, opacity)
+       serán establecidos por JavaScript dinámicamente si hay pesos.
+       Estos son fallbacks o estilos base si JS no los modifica (ej. error o sin pesos). */
+    stroke: var(--connection-default-color);
+    stroke-width: var(--connection-default-stroke-width, 1px); /* Valor por defecto para la variable */
+    opacity: var(--connection-default-opacity, 0.7); /* Valor por defecto para la variable */
+}
