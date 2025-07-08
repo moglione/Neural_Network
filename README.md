@@ -81,4 +81,3 @@ Esta es una aplicación web standalone diseñada para ayudar a entender los conc
 ---
 
 Hecho con fines educativos para demostrar el funcionamiento interno de una red neuronal.
-Una vez que hayas actualizado el archivo manualmente, puedo continuar con los siguientes pasos del plan (revisión y submit). Avísame cuando lo hayas hecho.
