@@ -1,0 +1,201 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    overflow-x: hidden; /* Evitar scroll horizontal en el body */
+}
+
+.app-container {
+    display: flex;
+    height: 100vh; /* Ocupar toda la altura de la ventana */
+}
+
+.control-panel {
+    width: 350px; /* Ancho fijo para el panel de control */
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    overflow-y: auto; /* Scroll si el contenido es más largo */
+    height: 100vh; /* Ocupar toda la altura */
+    box-sizing: border-box;
+}
+
+.control-panel h1 {
+    text-align: center;
+    font-size: 1.8em;
+    color: #333;
+    margin-top: 0;
+}
+.control-panel h2 {
+    font-size: 1.3em;
+    color: #444;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+
+.controls, .training-section, .prediction-section {
+    background-color: transparent; /* El fondo ya está en control-panel */
+    padding: 0; /* Padding ya está en control-panel o en secciones específicas */
+    /* margin-bottom: 20px; /* Quitar el margen inferior general de .prediction-section si estaba aquí */
+    border-radius: 0; /* Sin bordes redondeados individuales */
+    box-shadow: none; /* Sin sombras individuales */
+    width: 100%; /* Ocupar todo el ancho del control-panel */
+}
+
+/* Asegurarse que .prediction-section en .control-panel (si existiera por error) no tenga margen inferior excesivo */
+.control-panel .prediction-section {
+    margin-bottom: 0;
+}
+
+
+.slider-container {
+    margin-bottom: 20px; /* Aumentar un poco el margen inferior */
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Hacer que los hijos (label-value-container y input) se estiren */
+}
+
+.label-value-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px; /* Espacio entre la línea etiqueta/valor y el slider */
+}
+
+.slider-container label {
+    /* margin-bottom ya no es necesario aquí */
+    font-weight: bold;
+    /* No es necesario min-width */
+}
+
+.slider-container input[type="range"] {
+    width: 100%;
+    /* margin-top: 0; /* El margen lo da el label-value-container arriba */
+}
+
+.slider-container span {
+    /* min-width: 20px; /* Puede no ser necesario o ajustarse */
+    text-align: right; /* Alinear el valor a la derecha del contenedor label-value */
+    font-size: 0.95em; /* Ligeramente más grande o igual que antes */
+    color: #333; /* Un color un poco más oscuro para el valor */
+    font-weight: bold;
+}
+
+.network-panel {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column; /* Apilar prediction-section y neural-network-container */
+    /* justify-content: center; No es necesario si es column y queremos que parta de arriba */
+    align-items: stretch; /* Para que los hijos ocupen el ancho */
+    padding: 20px;
+    box-sizing: border-box;
+    height: 100vh;
+}
+
+.prediction-section { /* Estilos para la sección cuando está en network-panel */
+    background-color: #fff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px; /* Espacio entre esta sección y el SVG */
+    /* width: 100%; /* Se estirará por align-items: stretch en el padre */
+    box-sizing: border-box;
+}
+
+.prediction-section h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    text-align: center;
+    color: #444;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+
+.neural-network-container {
+    width: 100%;
+    /* height: 100%; Se quitará para que flex-grow funcione bien */
+    flex-grow: 1; /* Ocupa el espacio vertical restante */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#neuralNetworkSvg {
+    display: block; /* Para eliminar espacio extra debajo si es inline */
+    width: 98%; /* Ajustar al contenedor, dejando un pequeño margen */
+    height: 98%;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+.data-entry {
+    display: flex;
+    flex-direction: column; /* Apilar los textareas */
+    gap: 15px; /* Espacio entre los contenedores de textarea */
+    margin-bottom: 15px;
+}
+
+.data-entry > div {
+    /* flex: 1; ya no es necesario para la dirección de columna si queremos que cada uno ocupe su contenido */
+    width: 100%; /* Asegurar que los divs contenedores ocupen el ancho */
+}
+
+textarea, input[type="text"], input[type="number"] {
+    width: 100%; /* Ocupar todo el ancho disponible en el panel */
+    padding: 8px 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#predictionOutput {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    min-height: 20px;
+}
+
+/* Estilos específicos para las neuronas y conexiones (se definirán más en JS) */
+.neuron {
+    stroke: #333;
+    stroke-width: 1.5;
+}
+
+.connection {
+    stroke: #555;
+    stroke-width: 1;
+    opacity: 0.7;
+}
