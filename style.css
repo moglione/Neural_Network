@@ -199,6 +199,28 @@ html, body {
     margin-bottom: 0;
 }
 
+.config-item { /* Estilo general para items de configuración, como el selector de activación */
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column; /* Etiqueta encima del control */
+}
+
+.config-item label {
+    font-weight: bold;
+    color: var(--body-text-color);
+    margin-bottom: 5px;
+}
+
+.config-item select {
+    padding: 8px 10px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 4px;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    width: 100%;
+    box-sizing: border-box;
+}
+
 
 .slider-container {
     margin-bottom: 20px; /* Aumentar un poco el margen inferior */

@@ -195,13 +195,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Lógica de la Red Neuronal ---
 
+    // Sigmoid
     function sigmoid(x) {
         return 1 / (1 + Math.exp(-x));
     }
-
-    function sigmoidDerivative(x) {
-        return x * (1 - x); // Asume que x ya es sigmoid(z)
+    function sigmoidDerivative(activationValue) { // x es la activación, sigmoid(z)
+        return activationValue * (1 - activationValue);
     }
+
+    // ReLU
+    function relu(x) {
+        return Math.max(0, x);
+    }
+    function reluDerivative(activationValue) { // x es la activación, relu(z)
+        return activationValue > 0 ? 1 : 0;
+    }
+
+    // Tanh
+    function tanh(x) {
+        return Math.tanh(x);
+    }
+    function tanhDerivative(activationValue) { // x es la activación, tanh(z)
+        return 1 - Math.pow(activationValue, 2);
+    }
+
+    // Variable global para la función de activación de capas ocultas
+    let hiddenLayerActivation = sigmoid;
+    let hiddenLayerActivationDerivative = sigmoidDerivative;
+
+    const activationFunctionHiddenSelect = document.getElementById('activationFunctionHidden');
+
+    function setHiddenActivationFunction(functionName) {
+        switch (functionName) {
+            case 'relu':
+                hiddenLayerActivation = relu;
+                hiddenLayerActivationDerivative = reluDerivative;
+                break;
+            case 'tanh':
+                hiddenLayerActivation = tanh;
+                hiddenLayerActivationDerivative = tanhDerivative;
+                break;
+            case 'sigmoid':
+            default:
+                hiddenLayerActivation = sigmoid;
+                hiddenLayerActivationDerivative = sigmoidDerivative;
+                break;
+        }
+    }
+
 
     function initializeNetworkStructure() {
         const numInputs = parseInt(numInputsSlider.value);
@@ -258,19 +299,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let currentActivations = [...inputValues];
-        const allActivations = [[...currentActivations]]; // Guardar activaciones de cada capa, incluyendo entrada
+        const allActivations = [[...currentActivations]];
 
-        for (let i = 0; i < network.weights.length; i++) { // Itera sobre las capas (ocultas y salida)
+        // Iterar sobre las capas de pesos (que conectan capas de neuronas)
+        // network.weights.length es el número de capas con pesos (ocultas + salida)
+        for (let i = 0; i < network.weights.length; i++) {
             const layerWeights = network.weights[i];
             const layerBiases = network.biases[i];
             const newActivations = [];
 
-            for (let j = 0; j < layerWeights.length; j++) { // Itera sobre las neuronas de la capa actual
+            // Determinar la función de activación para esta capa
+            // i es el índice de la capa de pesos.
+            // Si i es el último índice de network.weights, entonces esta capa de pesos
+            // lleva a la capa de SALIDA de neuronas.
+            // De lo contrario, lleva a una capa OCULTA de neuronas.
+            const isOutputLayerConnection = (i === network.weights.length - 1);
+            const activationFn = isOutputLayerConnection ? sigmoid : hiddenLayerActivation;
+
+            for (let j = 0; j < layerWeights.length; j++) {
                 let weightedSum = layerBiases[j];
-                for (let k = 0; k < currentActivations.length; k++) { // Itera sobre las activaciones de la capa anterior
+                for (let k = 0; k < currentActivations.length; k++) {
                     weightedSum += currentActivations[k] * layerWeights[j][k];
                 }
-                newActivations.push(sigmoid(weightedSum));
+                newActivations.push(activationFn(weightedSum));
             }
             currentActivations = newActivations;
             allActivations.push([...currentActivations]);
@@ -284,29 +335,34 @@ document.addEventListener('DOMContentLoaded', () => {
         let errors = [];
 
         // Calcular error de la capa de salida
+        // La capa de salida siempre usa sigmoidDerivative
         const outputLayerActivations = allActivations[allActivations.length - 1];
-        const outputErrors = [];
+        const outputLayerIndexInErrors = numLayers - 1; // Índice de la capa de salida en el array 'errors'
+        errors[outputLayerIndexInErrors] = [];
         for (let i = 0; i < outputLayerActivations.length; i++) {
             const error = targetOutputs[i] - outputLayerActivations[i];
-            outputErrors.push(error * sigmoidDerivative(outputLayerActivations[i]));
+            errors[outputLayerIndexInErrors].push(error * sigmoidDerivative(outputLayerActivations[i]));
         }
-        errors[numLayers - 1] = outputErrors;
 
         // Retropropagar errores a capas ocultas
-        for (let i = numLayers - 2; i >= 0; i--) { // Desde la última capa oculta hacia atrás
-            const currentLayerActivations = allActivations[i + 1]; // Activaciones de la capa actual (i-ésima capa oculta o de salida)
-            const nextLayerWeights = network.weights[i + 1];
-            const nextLayerErrors = errors[i + 1];
-            const currentLayerErrors = [];
+        // Iterar desde la penúltima capa de pesos hacia atrás (que corresponde a la última capa oculta de neuronas)
+        // El índice 'i' aquí se refiere al índice en el array 'errors' y también al índice de la capa de pesos
+        // que CONECTA a la capa de neuronas cuyas activaciones estamos usando.
+        for (let i = numLayers - 2; i >= 0; i--) {
+            const hiddenLayerActivations = allActivations[i + 1]; // Activaciones de la capa oculta actual
+            const nextLayerWeights = network.weights[i + 1]; // Pesos de la capa siguiente (más cercana a la salida)
+            const nextLayerErrors = errors[i + 1]; // Errores de la capa siguiente
 
-            for (let j = 0; j < currentLayerActivations.length; j++) { // Para cada neurona en la capa actual
+            errors[i] = []; // Inicializar array de errores para la capa oculta actual
+
+            for (let j = 0; j < hiddenLayerActivations.length; j++) { // Para cada neurona en la capa oculta actual
                 let errorSum = 0;
-                for (let k = 0; k < nextLayerErrors.length; k++) { // Sumar errores ponderados de la siguiente capa
+                for (let k = 0; k < nextLayerErrors.length; k++) {
                     errorSum += nextLayerErrors[k] * nextLayerWeights[k][j];
                 }
-                currentLayerErrors.push(errorSum * sigmoidDerivative(currentLayerActivations[j]));
+                // Usar la derivada de la función de activación de las capas ocultas
+                errors[i].push(errorSum * hiddenLayerActivationDerivative(hiddenLayerActivations[j]));
             }
-            errors[i] = currentLayerErrors;
         }
 
         // Actualizar pesos y biases
@@ -533,5 +589,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cargar tema guardado al iniciar
     const savedTheme = localStorage.getItem('theme') || 'light'; // Default to light
     applyTheme(savedTheme);
+
+    // Event listener para el selector de función de activación de capas ocultas
+    activationFunctionHiddenSelect.addEventListener('change', (event) => {
+        setHiddenActivationFunction(event.target.value);
+        // Re-inicializar la red es importante porque los pesos aprendidos con una función
+        // de activación no son directamente transferibles a otra.
+        console.log(`Función de activación de capas ocultas cambiada a: ${event.target.value}. Reinicializando red.`);
+        alert(`Función de activación de capas ocultas cambiada a: ${event.target.value}.\nLa red será reinicializada con nuevos pesos aleatorios.`);
+        initializeNetworkStructure();
+        // initializeNetworkStructure ya llama a drawNeuralNetwork, por lo que se actualizará la visualización.
+    });
+
+    // Inicializar la función de activación seleccionada al cargar la página
+    setHiddenActivationFunction(activationFunctionHiddenSelect.value);
 
 });

@@ -50,6 +50,15 @@
                     </div>
             <input type="range" id="numOutputs" name="numOutputs" min="1" max="10" value="2">
         </div>
+                <div class="config-item"> <!-- Usar config-item para consistencia si es necesario -->
+                    <label for="activationFunctionHidden">Activación (Capas Ocultas):</label>
+                    <select id="activationFunctionHidden" name="activationFunctionHidden">
+                        <option value="sigmoid" selected>Sigmoid</option>
+                        <option value="relu">ReLU</option>
+                        <option value="tanh">Tanh</option>
+                    </select>
+                </div>
+                 <!-- Podríamos añadir aquí un selector para la función de activación de la capa de salida en el futuro -->
     </div>
 
     <div class="training-section">
